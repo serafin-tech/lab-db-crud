@@ -1,7 +1,7 @@
 from fasthtml.common import *
 from fasthtml.components import *
 
-from db import DbInterface
+from db import DbInterface, FieldDetails, FormFieldTypes
 
 css = Style(':root {--pico-font-size:90%,--pico-font-family: Pacifico, cursive;}')
 app = FastHTML(hdrs=(picolink, css))
@@ -19,7 +19,9 @@ def page_template(header: str, payload):
 
 @rt("/")
 def get():
-    return page_template(header="Testing...", payload=H2("even more testing..."))
+    return page_template(header="Testing...",
+                         payload=Div(H2("even more testing..."),
+                                     P("some text to be displayed...")))
 
 
 def generate_action_buttons(url_prefix, id):
@@ -34,6 +36,21 @@ def generate_table(headers, table_data, actions_url_prefix):
         Thead(Tr(*[Th(col) for col in headers], Th("Akcje"))),
         Tbody(*[Tr(*[Td(str(cell)) for cell in row],
                    generate_action_buttons(actions_url_prefix, row[0])) for row in table_data]))
+
+
+def generate_form(fields_details: List[FieldDetails], record_data:List[str], submit_url: str):
+    return Form(
+        *[Div(
+            Label(field_details.header, cls="label", for_=field_details.name)
+                if field_details.form_type != FormFieldTypes.HIDDEN else None,
+            Input(value=str(cell_value), name=field_details.name, id=field_details.name,
+                  type=field_details.form_type, cls="input")
+        )
+            for field_details, cell_value in zip(fields_details, record_data)
+        ],
+        Input(type="submit", value="Zapisz", cls="button is-primary"),
+        action=submit_url,
+        method="PUT")
 
 
 @rt("/{table_name}")
@@ -55,6 +72,18 @@ def delete(table_name: str, id:int):
 
     db_interface.remove_table_row(table_name, id)
     return Redirect(f"/{table_name}")
+
+
+@rt("/{table_name}/edit/{id}")
+def get(table_name: str, id:int):
+    if not db_interface.check_table_exists(table_name):
+        return Response(status_code=404)
+
+    table_fields_details = db_interface.get_table_fields_details(table_name)
+    record_data = db_interface.get_record_data(table_name, id)
+
+    return page_template(header=f"{table_name.capitalize()}, record: {id}",
+                         payload=generate_form(table_fields_details, record_data, f"/{table_name}/{id}"))
 
 
 serve()
