@@ -53,11 +53,12 @@ class DbInterface:
                            {'id':id})
         self.connection.commit()
 
-    def update_table_row(self, table_name: Tables, id: int, data: type[Kontraktor | Zespol]):
+    def update_table_row(self, table_name: Tables, id: int,
+                         data: type[Kontraktor | Pracownik | Stanowisko | Zespol]):
         if table_name not in Tables:
             raise ValueError(f"Invalid table {table_name}")
 
-        if id != int(asdict(data)[TABLE_DETAILS[table_name].primary_key]):
+        if id != int(getattr(data, TABLE_DETAILS[table_name].primary_key)):
             raise ValueError("Primary key value mismatch")
 
         if table_name == Tables.KONTRAKTORZY:

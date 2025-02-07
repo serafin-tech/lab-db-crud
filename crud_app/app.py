@@ -2,8 +2,8 @@ from decouple import config
 from fasthtml.common import *
 from fasthtml.components import *
 
-from crud_app.db import DbInterface
-from crud_app.db_structure import FieldDetails, FormFieldTypes, Kontraktor, Pracownik, Stanowisko, Zespol
+from db import DbInterface
+from db_structure import FieldDetails, FormFieldTypes, Kontraktor, Pracownik, Stanowisko, Zespol
 
 
 css = Style(':root {--pico-font-size:90%,--pico-font-family: Pacifico, cursive;}')
