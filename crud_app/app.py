@@ -1,14 +1,20 @@
+from decouple import config
 from fasthtml.common import *
 from fasthtml.components import *
 
-from db import DbInterface, FieldDetails, FormFieldTypes
+from crud_app.db import DbInterface
+from crud_app.db_structure import FieldDetails, FormFieldTypes, Kontraktor, Pracownik, Stanowisko, Zespol
+
 
 css = Style(':root {--pico-font-size:90%,--pico-font-family: Pacifico, cursive;}')
 app = FastHTML(hdrs=(picolink, css))
 
 rt = app.route
 
-db_interface = DbInterface()
+db_interface = DbInterface(db_user=config("DB_USER"),
+                           db_pass=config("DB_PASS"),
+                           db_host=config("DB_HOST"),
+                           db_name=config("DB_NAME"))
 
 
 def page_template(header: str, payload):
@@ -19,9 +25,9 @@ def page_template(header: str, payload):
 
 @rt("/")
 def get():
-    return page_template(header="Testing...",
-                         payload=Div(H2("even more testing..."),
-                                     P("some text to be displayed...")))
+    return page_template(header="Tables",
+                         payload=Div(*[P(A(item.capitalize(), href=f"/{item}"))
+                                       for item in sorted(db_interface.get_tables())]))
 
 
 def generate_action_buttons(url_prefix, id):
@@ -50,7 +56,7 @@ def generate_form(fields_details: List[FieldDetails], record_data:List[str], sub
         ],
         Input(type="submit", value="Zapisz", cls="button is-primary"),
         action=submit_url,
-        method="PUT")
+        method="POST")
 
 
 @rt("/{table_name}")
@@ -84,6 +90,34 @@ def get(table_name: str, id:int):
 
     return page_template(header=f"{table_name.capitalize()}, record: {id}",
                          payload=generate_form(table_fields_details, record_data, f"/{table_name}/{id}"))
+
+
+@rt("/kontraktorzy/{id}")
+def post(id:int, data:Kontraktor):
+    return post_processing('kontraktorzy', id, data)
+
+
+@rt("/pracownicy/{id}")
+def post(id:int, data:Pracownik):
+    return post_processing('pracownicy', id, data)
+
+
+@rt("/stanowiska/{id}")
+def post(id:int, data:Stanowisko):
+    return post_processing('stanowiska', id, data)
+
+
+@rt("/zespoly/{id}")
+def post(id:int, data:Zespol):
+    return post_processing('zespoly', id, data)
+
+
+def post_processing(table_name: str, id:int, data: type[Kontraktor | Zespol]):
+    if not db_interface.check_table_exists(table_name):
+        return Response(status_code=404)
+
+    db_interface.update_table_row(table_name, id, data)
+    return Redirect(f"/{table_name}")
 
 
 serve()
