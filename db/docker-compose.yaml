@@ -1,0 +1,13 @@
+---
+services:
+  mariadb-10:
+    image: mariadb:10
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: lab_db_v3
+    ports:
+      - "3306:3306"
+    volumes:
+      - "./lab_db_v3.sql:/docker-entrypoint-initdb.d/1.sql"
