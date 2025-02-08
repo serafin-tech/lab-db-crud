@@ -1,9 +1,10 @@
+# pylint: disable=undefined-variable
 from decouple import config
-from fasthtml.common import *
-from fasthtml.components import *
+from fasthtml.common import *  # pylint: disable=unused-wildcard-import
+from fasthtml.components import *  # pylint: disable=unused-wildcard-import
 
-from db import DbInterface
-from db_structure import FieldDetails, FormFieldTypes, Kontraktor, Pracownik, Stanowisko, Zespol
+from crud_app.db import DbInterface
+from crud_app.db_structure import FieldDetails, FormFieldTypes, Kontraktor, Pracownik, Stanowisko, Zespol
 
 
 css = Style(':root {--pico-font-size:90%,--pico-font-family: Pacifico, cursive;}')

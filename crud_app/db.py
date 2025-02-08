@@ -1,3 +1,6 @@
+"""
+Database interface definition for FastHTML application backend.
+"""
 from dataclasses import asdict
 from typing import List, Set
 
@@ -8,6 +11,9 @@ from crud_app.db_structure import (FieldDetails, Kontraktor, Pracownik,
 
 
 class DbInterface:
+    """
+    Class representing the interface to the database, depends on `db_structure` objects.
+    """
     def __init__(self, db_user: str, db_pass: str, db_host: str, db_name: str):
         self.connection = mysql.connector.connect(user = db_user, password = db_pass,
                                                   host = db_host, database = db_name)
@@ -17,10 +23,17 @@ class DbInterface:
 
     @staticmethod
     def get_tables() -> Set[str]:
+        """
+        :return: Set of table names available for CRUD operations
+        """
         return {table.value for table in Tables}
 
     @staticmethod
     def check_table_exists(table_name: Tables):
+        """
+        :param table_name: Table name to check
+        :return: bool value indicating if the table exists
+        """
         return table_name in Tables
 
     def get_table_data(self, table_name: Tables):
