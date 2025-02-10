@@ -126,6 +126,15 @@ class Kontraktor:
                "data_zatrudn=%(data_zatrudn)s, stawka_godzinowa=%(stawka_godzinowa)s, plec=%(plec)s " \
                "WHERE idkontr=%(idkontr)s"
 
+    @staticmethod
+    def generate_insert_query_str():
+        """
+        INSERT query template for the table
+        :return: string with the template
+        """
+        return "INSERT INTO kontraktorzy (imie, nazwisko, przelozony, data_zatrudn, stawka_godzinowa, plec) " \
+               "VALUES (%(imie)s, %(nazwisko)s, %(przelozony)s, %(data_zatrudn)s, %(stawka_godzinowa)s, %(plec)s)"
+
 
 @dataclass
 class Pracownik: # pylint: disable=too-many-instance-attributes
@@ -153,6 +162,17 @@ class Pracownik: # pylint: disable=too-many-instance-attributes
                "przelozony=%(przelozony)s, data_zatrudn=%(data_zatrudn)s, zespol=%(zespol)s, " \
                "wynagrodzenie=%(wynagrodzenie)s, plec=%(plec)s WHERE idprac=%(idprac)s"
 
+    @staticmethod
+    def generate_insert_query_str():
+        """
+        INSERT query template for the table
+        :return: string with the template
+        """
+        return ("INSERT INTO pracownicy "
+                "(imie, nazwisko, stanowisko, przelozony, data_zatrudn, zespol, wynagrodzenie, plec) "
+                "VALUES (%(imie)s, %(nazwisko)s, %(stanowisko)s, %(przelozony)s, "
+                "%(data_zatrudn)s, %(zespol)s, %(wynagrodzenie)s, %(plec)s)")
+
 
 @dataclass
 class Stanowisko:
@@ -171,8 +191,18 @@ class Stanowisko:
         UPDATE query template for the table
         :return: string with the template
         """
-        return "UPDATE stanowiska SET nazwa=%(nazwa)s, placa_min=%(placa_min)s, placa_max=%(placa_max)s " \
-                "WHERE idstanow=%(idstanow)s"
+        return ("UPDATE stanowiska "
+                "SET nazwa=%(nazwa)s, placa_min=%(placa_min)s, placa_max=%(placa_max)s "
+                "WHERE idstanow=%(idstanow)s")
+
+    @staticmethod
+    def generate_insert_query_str():
+        """
+        INSERT query template for the table
+        :return: string with the template
+        """
+        return ("INSERT INTO stanowiska (nazwa, placa_min, placa_max) "
+                "VALUES (%(nazwa)s, %(placa_min)s, %(placa_max)s)")
 
 
 @dataclass
@@ -192,3 +222,11 @@ class Zespol:
         :return: string with the template
         """
         return "UPDATE zespoly SET nazwa=%(nazwa)s, dzial=%(dzial)s WHERE idzespol=%(idzespol)s"
+
+    @staticmethod
+    def generate_insert_query_str():
+        """
+        INSERT query template for the table
+        :return: string with the template
+        """
+        return "INSERT INTO zespoly (nazwa, dzial) VALUES (%(nazwa)s, %(dzial)s)"

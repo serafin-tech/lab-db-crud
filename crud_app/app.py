@@ -39,10 +39,11 @@ def generate_action_buttons(url_prefix, id):
 
 
 def generate_table(headers, table_data, actions_url_prefix):
-    return Table(
+    return Container(Table(
         Thead(Tr(*[Th(col) for col in headers], Th("Akcje"))),
         Tbody(*[Tr(*[Td(str(cell)) for cell in row],
-                   generate_action_buttons(actions_url_prefix, row[0])) for row in table_data]))
+                   generate_action_buttons(actions_url_prefix, row[0])) for row in table_data])),
+        A("Nowy element", href=f"{actions_url_prefix}/new", role="button", cls="button is-small is-primary"))
 
 
 def generate_form(fields_details: List[FieldDetails], record_data:List[str], submit_url: str):
@@ -81,6 +82,18 @@ def delete(table_name: str, id:int):
     return Redirect(f"/{table_name}")
 
 
+@rt("/{table_name}/new")
+def get(table_name: str):
+    if not db_interface.check_table_exists(table_name):
+        return Response(status_code=404)
+
+    table_fields_details = db_interface.get_table_fields_details(table_name)
+    record_data = ['' for _ in table_fields_details]
+
+    return page_template(header=f"{table_name.capitalize()}, nowy record",
+                         payload=generate_form(table_fields_details, record_data, f"/{table_name}/0"))
+
+
 @rt("/{table_name}/edit/{id}")
 def get(table_name: str, id:int):
     if not db_interface.check_table_exists(table_name):
@@ -113,11 +126,15 @@ def post(id:int, data:Zespol):
     return post_processing('zespoly', id, data)
 
 
-def post_processing(table_name: str, id:int, data: type[Kontraktor | Zespol]):
+def post_processing(table_name: str, id:int, data: type[Kontraktor | Pracownik | Stanowisko | Zespol]):
     if not db_interface.check_table_exists(table_name):
         return Response(status_code=404)
 
-    db_interface.update_table_row(table_name, id, data)
+    if id > 0:
+        db_interface.update_table_row(table_name, id, data)
+    else:
+        db_interface.insert_table_row(table_name, data)
+
     return Redirect(f"/{table_name}")
 
 

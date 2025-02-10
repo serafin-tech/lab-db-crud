@@ -37,6 +37,10 @@ class DbInterface:
         return table_name in Tables
 
     def get_table_data(self, table_name: Tables):
+        """
+        :param table_name: Table name to get data from
+        :return: list of tuples with the data from the table
+        """
         if table_name not in Tables:
             raise ValueError(f"Invalid table {table_name}")
 
@@ -82,6 +86,29 @@ class DbInterface:
             query_template = Stanowisko.generate_update_query_str()
         elif table_name == Tables.ZESPOLY:
             query_template = Zespol.generate_update_query_str()
+        else:
+            raise ValueError(f"No query template available for {table_name}")
+
+        with self.connection.cursor() as cursor:
+            cursor.execute(query_template, asdict(data))
+
+        self.connection.commit
+
+    def insert_table_row(self, table_name: Tables,
+                         data: type[Kontraktor | Pracownik | Stanowisko | Zespol]):
+        if table_name not in Tables:
+            raise ValueError(f"Invalid table {table_name}")
+
+        if table_name == Tables.KONTRAKTORZY:
+            query_template = Kontraktor.generate_insert_query_str()
+        elif table_name == Tables.PRACOWNICY:
+            query_template = Pracownik.generate_insert_query_str()
+        elif table_name == Tables.STANOWISKA:
+            query_template = Stanowisko.generate_insert_query_str()
+        elif table_name == Tables.ZESPOLY:
+            query_template = Zespol.generate_insert_query_str()
+        else:
+            raise ValueError(f"No query template available for {table_name}")
 
         with self.connection.cursor() as cursor:
             cursor.execute(query_template, asdict(data))
